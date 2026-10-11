@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "KKU Plan Tools",
+  "version": "2.3",
+  "description": "Reveal hidden rows, extract plan data, and export timetable to Excel",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "KKU Plan Tools"
+  }
+}

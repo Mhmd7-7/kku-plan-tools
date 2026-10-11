@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 270px;
+      padding: 16px 14px 14px;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      text-align: center;
+      background: #f9fafb;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #0d0d0d;
+      margin-bottom: 14px;
+      letter-spacing: -0.2px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 10px;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    button {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      transition: background 0.15s, transform 0.05s;
+      width: 100%;
+      letter-spacing: 0.2px;
+    }
+    button:active { transform: scale(0.97); }
+    button.primary { background: #4d6bfe; }
+    button.primary:hover { background: #3b56d9; }
+    button.success { background: #0f973d; }
+    button.success:hover { background: #0c7d32; }
+    button.secondary { background: #6b7280; }
+    button.secondary:hover { background: #545b67; }
+    button.excel { background: #1d6f42; }
+    button.excel:hover { background: #155a35; }
+    #status {
+      margin-top: 14px;
+      font-size: 12.5px;
+      color: #374151;
+      min-height: 1.4em;
+      line-height: 1.4;
+      word-break: break-word;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 12px;
+    }
+    .status-success { color: #0f7b2e !important; }
+    .status-error { color: #b91c1c !important; }
+    .status-info { color: #4b5563 !important; }
+    .footer-note {
+      margin-top: 10px;
+      font-size: 10px;
+      color: #9ca3af;
+      letter-spacing: 0.2px;
+    }
+  </style>
+</head>
+<body>
+  <h3>KKU Plan Tools</h3>
+  <div class="btn-group">
+    <button id="revealBtn" class="primary">Show all hidden rows</button>
+    <button id="extractBtn" class="success">Open Plan in kku-plan-cs</button>
+    <button id="fullExtractBtn" class="secondary">Extract Courses Offered (JSON)</button>
+    <button id="exportExcelBtn" class="excel">Export scheduleTreeCoursesIndex</button>
+  </div>
+  <div id="status">Ready</div>
+  <div class="footer-note">works on KKU Plan CS pages</div>
+  <script src="popup.js"></script>
+</body>
+</html>

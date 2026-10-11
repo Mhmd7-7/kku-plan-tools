@@ -1,0 +1,18 @@
+# OS / editor cruft
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+*.swp
+*~
+
+# Windows / OneDrive sync temp files
+*.tmp
+~$*
+
+# Editor & tooling
+.vscode/
+.idea/
+*.log
+npm-debug.log*
