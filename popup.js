@@ -9,16 +9,6 @@ function setStatus(msg, type = 'info') {
   statusEl.className = 'status-' + type;
 }
 
-function utf8ToBase64(str) {
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(str);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
-
 // ─── Reveal hidden rows ──────────────────────────────────────────────
 revealBtn.addEventListener('click', async () => {
   setStatus('Working…', 'info');
@@ -42,28 +32,37 @@ revealBtn.addEventListener('click', async () => {
 
 // ─── Open in kku-plan-cs ─────────────────────────────────────────────
 extractBtn.addEventListener('click', async () => {
-  setStatus('Extracting plan data…', 'info');
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab) { setStatus('No active tab found.', 'error'); return; }
+  extractBtn.disabled = true;
+  setStatus('Opening KKU study plan…', 'info');
   try {
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: getCoursesArray
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab) throw new Error('No active tab found.');
+    const response = await chrome.runtime.sendMessage({
+      type: 'START_PLAN_TRANSFER', tabId: tab.id
     });
-    const courses = results[0]?.result || [];
-    if (!courses || courses.length === 0) {
-      setStatus('⚠️ No courses found on this page.', 'error');
-      return;
-    }
-    const jsonStr = JSON.stringify(courses);
-    const base64 = utf8ToBase64(jsonStr);
-    const url = `https://kku-plan-cs.netlify.app/?JsonC=${base64}`;
-    await chrome.tabs.create({ url });
-    setStatus(`✅ Opened with ${courses.length} course(s).`, 'success');
+    if (!response?.ok) throw new Error(response?.error || 'Could not open the study plan.');
+    setStatus(response.message, 'info');
   } catch (err) {
     setStatus(`❌ Error: ${err.message}`, 'error');
+  } finally {
+    extractBtn.disabled = false;
   }
 });
+
+// Restore the outcome when the popup is reopened after navigation.
+async function restorePlanStatus() {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab) return;
+    const response = await chrome.runtime.sendMessage({ type: 'GET_PLAN_STATUS', tabId: tab.id });
+    if (response?.job && statusEl.textContent === 'Ready') {
+      setStatus(response.job.message, response.job.status);
+    }
+  } catch {
+    // Other tools remain usable if no transfer status is available.
+  }
+}
+restorePlanStatus();
 
 // ─── Extract JSON (full) ─────────────────────────────────────────────
 fullExtractBtn.addEventListener('click', async () => {
@@ -158,25 +157,6 @@ function extractFullCourses() {
     URL.revokeObjectURL(url);
     return courses;
   })();
-}
-
-function getCoursesArray() {
-  const allPlanList = document.getElementById('myFrm:allPlanList');
-  if (!allPlanList) return [];
-  const courses = [];
-  const rows = allPlanList.querySelectorAll('table[id$="coursesPlan"] tbody tr');
-  rows.forEach(row => {
-    const courseCodeSpan = row.querySelector('td:first-child span');
-    const courseCode = courseCodeSpan ? courseCodeSpan.innerText.trim() : null;
-    if (courseCode) {
-      let status = '';
-      if (row.classList.contains('TAKEN')) status = 'TAKEN';
-      else if (row.classList.contains('TAKEN_NOW')) status = 'TAKEN_NOW';
-      else if (row.classList.contains('NOT_TAKEN')) status = 'NOT_TAKEN';
-      courses.push({ courseCode, status });
-    }
-  });
-  return courses;
 }
 
 // ─── Export timetable to Excel (no CDN loading) ────────────────────
